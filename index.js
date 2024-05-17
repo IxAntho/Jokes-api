@@ -80,12 +80,84 @@ app.get("/filter", (req, res) => {
 });
 
 //4. POST a new joke
+app.post("/jokes", (req, res) => {
+  try {
+    // Check if request body is provided
+    if (!req.body) {
+      throw new Error("Request body is missing.");
+    }
+
+    // Check if required fields are provided
+    const { text, type } = req.body;
+    if (!text || !type) {
+      throw new Error("Both 'text' and 'type' fields are required.");
+    }
+
+    // Create a new joke object
+    const newJoke = {
+      id: jokes.length + 1,
+      jokeText: text,
+      jokeType: type,
+    };
+
+    // Add the new joke to the jokes array
+    jokes.push(newJoke);
+
+    // Send the new joke as the response
+    res.json(newJoke);
+  } catch (err) {
+    console.error("Error creating a new joke:", err);
+    res.status(400).json({ error: err.message });
+  }
+});
 
 //5. PUT a joke
+app.put("/jokes/:id", (req, res) => {
+  const searchId = req.params.id;
+  try {
+    // Find the joke with the matching id, this is gonna loop through the array, analysing ever j (joke)
+    const joke = jokes.find((j) => j.id === parseInt(searchId));
 
-//6. PATCH a joke
+    if (!joke) {
+      throw new Error(`There's no joke that matches id: ${searchId}`);
+    }
+
+    joke.jokeText = req.body.text;
+    joke.jokeType = req.body.type;
+
+    res.json(joke);
+  } catch (err) {
+    // Handle errors
+    console.error("Error searching joke:", err);
+    res.status(404).json({ error: err.message });
+  }
+});
+
+//6. PATCH a joke (update only the type)
+app.patch("/jokes/:id", (req, res) => {
+  const searchId = req.params.id;
+
+  try {
+    // Find the joke with the matching id
+    const joke = jokes.find((j) => j.id === parseInt(searchId));
+
+    if (!joke) {
+      throw new Error(`There's no joke that matches id: ${searchId}`);
+    }
+
+    // Update the jokeType
+    joke.jokeType = req.body.type || joke.jokeType;
+    joke.jokeText = req.body.text || joke.jokeText;
+
+    res.json(joke);
+  } catch (err) {
+    console.error("Error updating joke type:", err);
+    res.status(400).json({ error: err.message });
+  }
+});
 
 //7. DELETE Specific joke
+app.delete("/jokes/:id", (req, res) => {});
 
 //8. DELETE All jokes
 
