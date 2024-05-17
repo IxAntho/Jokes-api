@@ -157,9 +157,51 @@ app.patch("/jokes/:id", (req, res) => {
 });
 
 //7. DELETE Specific joke
-app.delete("/jokes/:id", (req, res) => {});
+app.delete("/jokes/:id", (req, res) => {
+  const searchId = req.params.id;
+
+  try {
+    // Find the joke with the matching id
+    const joke = jokes.find((j) => j.id === parseInt(searchId));
+
+    if (!joke) {
+      throw new Error(`There's no joke that matches id: ${searchId}`);
+    }
+
+    // Remove the item from the jokes array
+    const deletedJoke = jokes.splice(searchId - 1, 1)[0];
+
+    res.json({ deletedJoke: deletedJoke });
+  } catch (err) {
+    console.error("Error deleting joke by index:", err);
+    res.status(400).json({ error: err.message });
+  }
+});
 
 //8. DELETE All jokes
+app.delete("/all", (req, res) => {
+  try {
+    // Check if the API key is provided in the request headers
+    const apiKey = req.query.key;
+    if (!apiKey) {
+      throw new Error("API key is missing in the request headers");
+    }
+
+    // Check if the provided API key is valid
+    if (apiKey !== masterKey) {
+      throw new Error("Invalid API key");
+    }
+
+    // Delete all jokes from the jokes array
+    const deletedJokes = [...jokes];
+    jokes.length = 0;
+
+    res.json(deletedJokes);
+  } catch (err) {
+    console.error("Error deleting all jokes:", err);
+    res.status(401).json({ error: err.message });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
