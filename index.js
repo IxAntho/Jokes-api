@@ -36,8 +36,48 @@ app.get("/random/", (req, res) => {
 });
 
 //2. GET a specific joke
+app.get("/jokes/:id", (req, res) => {
+  const searchId = req.params.id;
+  try {
+    // Find the joke with the matching id, this is gonna loop through the array, analysing ever j (joke)
+    const joke = jokes.find((j) => j.id === parseInt(searchId));
 
-//3. GET a jokes by filtering on the joke type
+    if (!joke) {
+      throw new Error(`There's no joke that matches id: ${searchId}`);
+    }
+
+    res.json(joke);
+  } catch (err) {
+    // Handle errors
+    console.error("Error searching joke:", err);
+    res.status(404).json({ error: err.message });
+  }
+});
+
+//3. GET jokes by filtering on the joke type
+app.get("/filter", (req, res) => {
+  try {
+    const type = req.query.type;
+
+    // Check if type is provided
+    if (!type) {
+      throw new Error("Joke type is required in the query parameter.");
+    }
+
+    // Filter jokes by type
+    const filteredJokes = jokes.filter((j) => j.jokeType === type);
+
+    // Check if any jokes match the provided type
+    if (filteredJokes.length === 0) {
+      throw new Error(`No jokes found with type: ${type}`);
+    }
+
+    res.json(filteredJokes);
+  } catch (err) {
+    console.error("Error filtering jokes:", err);
+    res.status(400).json({ error: err.message });
+  }
+});
 
 //4. POST a new joke
 
