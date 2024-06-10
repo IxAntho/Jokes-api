@@ -1,16 +1,18 @@
 import express from "express";
 import bodyParser from "body-parser";
 
+// Create an Express application instance
 const app = express();
 const port = 3000;
 const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
 
+// Middleware to parse request bodies in URL-encoded format
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //1. GET a random joke
 app.get("/random/", (req, res) => {
   try {
-    // check is the jokes array is empty
+    // Check if the jokes array is empty
     if (jokes.length === 0) {
       throw new Error("No jokes available.");
     }
@@ -95,7 +97,7 @@ app.post("/jokes", (req, res) => {
 
     // Create a new joke object
     const newJoke = {
-      id: jokes.length + 1,
+      id: jokes.length + 1, // Assign a new ID to the joke
       jokeText: text,
       jokeType: type,
     };
@@ -115,13 +117,14 @@ app.post("/jokes", (req, res) => {
 app.put("/jokes/:id", (req, res) => {
   const searchId = req.params.id;
   try {
-    // Find the joke with the matching id, this is gonna loop through the array, analysing ever j (joke)
+    // Find the joke with the matching id
     const joke = jokes.find((j) => j.id === parseInt(searchId));
 
     if (!joke) {
       throw new Error(`There's no joke that matches id: ${searchId}`);
     }
 
+    // Update the joke with the new text and type
     joke.jokeText = req.body.text;
     joke.jokeType = req.body.type;
 
@@ -133,7 +136,7 @@ app.put("/jokes/:id", (req, res) => {
   }
 });
 
-//6. PATCH a joke (update only the type)
+//6. PATCH a joke (update jokeText or jokeType)
 app.patch("/jokes/:id", (req, res) => {
   const searchId = req.params.id;
 
@@ -147,16 +150,18 @@ app.patch("/jokes/:id", (req, res) => {
 
     // Update the jokeType
     joke.jokeType = req.body.type || joke.jokeType;
+
+    // Update the jokeText
     joke.jokeText = req.body.text || joke.jokeText;
 
     res.json(joke);
   } catch (err) {
-    console.error("Error updating joke type:", err);
+    console.error("Error updating joke:", err);
     res.status(400).json({ error: err.message });
   }
 });
 
-//7. DELETE Specific joke
+//7. DELETE a specific joke
 app.delete("/jokes/:id", (req, res) => {
   const searchId = req.params.id;
 
@@ -168,7 +173,7 @@ app.delete("/jokes/:id", (req, res) => {
       throw new Error(`There's no joke that matches id: ${searchId}`);
     }
 
-    // Remove the item from the jokes array
+    // Remove the joke from the jokes array
     const deletedJoke = jokes.splice(searchId - 1, 1)[0];
 
     res.json({ deletedJoke: deletedJoke });
@@ -178,7 +183,7 @@ app.delete("/jokes/:id", (req, res) => {
   }
 });
 
-//8. DELETE All jokes
+//8. DELETE all jokes
 app.delete("/all", (req, res) => {
   try {
     // Check if the API key is provided in the request headers
@@ -203,10 +208,12 @@ app.delete("/all", (req, res) => {
   }
 });
 
+// Start the server
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });
 
+// Initial jokes data
 let jokes = [
   {
     id: 1,
